@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - WindowProgram",
+            "request": "launch",
+            "mainClass": "WindowProgram",
+            "projectName": "DT050A-Distributed-Systems-laboration-1_4df7612f"
+        },
+        {
+            "type": "java",
             "name": "Debug (Launch) - Current File",
             "request": "launch",
             "mainClass": "${file}"
