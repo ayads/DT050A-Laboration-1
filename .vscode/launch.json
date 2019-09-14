@@ -9,6 +9,13 @@
             "name": "CodeLens (Launch) - WindowProgram",
             "request": "launch",
             "mainClass": "WindowProgram",
+            "projectName": "DT050A-Distributed-Systems-laboration-1_f27a48eb"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - WindowProgram",
+            "request": "launch",
+            "mainClass": "WindowProgram",
             "projectName": "DT050A-Distributed-Systems-laboration-1_4df7612f"
         },
         {
