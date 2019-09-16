@@ -8,20 +8,13 @@ import se.miun.distsys.messages.ChatMessage;
 //Skeleton code for Distributed systems 9hp, DT050A
 
 public class Program implements ChatMessageListener{
-
 	boolean runProgram = true;
-	
 	GroupCommuncation gc = null;	
-	
-	public static void main(String[] args) {
-		Program program = new Program();
-	}
 		
 	public Program() {
 		gc = new GroupCommuncation();		
 		gc.setChatMessageListener(this);
 		System.out.println("Group Communcation Started");
-		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));		
 		while(runProgram) {			
 			try {
@@ -40,5 +33,9 @@ public class Program implements ChatMessageListener{
 	@Override
 	public void onIncomingChatMessage(ChatMessage chatMessage) {		
 		System.out.println("Incoming chat message: " + chatMessage.chat);	
+	}
+
+	public static void main(String[] args) {
+		Program program = new Program();
 	}
 }

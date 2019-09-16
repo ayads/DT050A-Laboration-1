@@ -1,5 +1,8 @@
 package se.miun.distsys;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -9,6 +12,8 @@ import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.messages.ChatMessage;
 import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
+import se.miun.distsys.clients.Client;
+import se.miun.distsys.clients.UniqueIdentifier;
 
 public class GroupCommuncation {
 	
@@ -18,16 +23,17 @@ public class GroupCommuncation {
 	MessageSerializer messageSerializer = new MessageSerializer();
 	
 	//Listeners
-	ChatMessageListener chatMessageListener = null;	
-	
+	ChatMessageListener chatMessageListener = null;
+
+	//Active clients
+	public List<Client> clients = new ArrayList<Client>();
+
 	public GroupCommuncation() {			
 		try {
 			runGroupCommuncation = true;				
-			datagramSocket = new MulticastSocket(datagramSocketPort);
-						
+			datagramSocket = new MulticastSocket(datagramSocketPort);	
 			ReceiveThread rt = new ReceiveThread();
 			rt.start();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -50,13 +56,32 @@ public class GroupCommuncation {
 					datagramSocket.receive(datagramPacket);										
 					byte[] packetData = datagramPacket.getData();					
 					Message receivedMessage = messageSerializer.deserializeMessage(packetData);					
+					handleDatagramPacket(datagramPacket);
 					handleMessage(receivedMessage);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}
-				
+		
+		private void handleDatagramPacket (DatagramPacket datagramPacket) {
+			String string = new String(datagramPacket.getData()); 
+			boolean isConnected = true;
+			if (!(string.isEmpty())){
+				int clientId = UniqueIdentifier.getUniqueIdentifier();
+				String clientName = "ex:name";
+				InetAddress ipAddress = datagramPacket.getAddress();
+				int portNumber = datagramPacket.getPort();
+				if(isConnected){
+					clients.add(new Client(clientName, ipAddress, portNumber, clientId, isConnected));
+					System.out.println(clients.get(0).getID());
+				}
+			}else{
+				isConnected = false;
+				System.out.println(string);
+			}
+		}
+
 		private void handleMessage (Message message) {
 			
 			if(message instanceof ChatMessage) {				

@@ -5,7 +5,7 @@ Laboration 1 will be a simple group communication program with no ordering of th
 The main goal of this laboration is to learn how to program UDP broadcast socket programming in Java, as well as understand the basis for this whole laboratory work.
 
 ## General tasks of laboration-1
-- [ ] Choose your own port, so your program will not collide with other students programs on the same network.
+- [X] Choose your own port, so your program will not collide with other students programs on the same network.
 - [ ] Implement a Join message, that is sent from a client when the client starts.
 - [ ] When another client receives the Join message, it shall add the user to its list of active clients.
 - [ ] Implement a Leave message, that is sent from a client when the client starts.
