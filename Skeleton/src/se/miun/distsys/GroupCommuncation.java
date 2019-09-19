@@ -3,6 +3,8 @@ package se.miun.distsys;
 import java.util.ArrayList;
 import java.util.List;
 
+import jdk.nashorn.internal.ir.JoinPredecessor;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -14,6 +16,17 @@ import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
 import se.miun.distsys.clients.Client;
 import se.miun.distsys.clients.UniqueIdentifier;
+
+
+/**
+ * TODO: 
+ * Leave message(class)
+ * Join message (class)
+ * sendJoinMessage
+ * sendLeaveMessage
+ * Remove datagramHandler
+ */
+
 
 public class GroupCommuncation {
 	
@@ -33,12 +46,13 @@ public class GroupCommuncation {
 			runGroupCommuncation = true;				
 			datagramSocket = new MulticastSocket(datagramSocketPort);	
 			ReceiveThread rt = new ReceiveThread();
+			
 			rt.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void shutdown() {
 		runGroupCommuncation = false;		
 	}
