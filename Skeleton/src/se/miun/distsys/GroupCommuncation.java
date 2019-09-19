@@ -3,15 +3,15 @@ package se.miun.distsys;
 import java.util.ArrayList;
 import java.util.List;
 
-import jdk.nashorn.internal.ir.JoinPredecessor;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import se.miun.distsys.listeners.ChatMessageListener;
+import se.miun.distsys.listeners.JoinMessageListener;
 import se.miun.distsys.messages.ChatMessage;
+import se.miun.distsys.messages.JoinMessage;
 import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
 import se.miun.distsys.clients.Client;
@@ -37,17 +37,20 @@ public class GroupCommuncation {
 	
 	//Listeners
 	ChatMessageListener chatMessageListener = null;
+	JoinMessageListener joinMessageListener = null;
 
 	//Active clients
-	public List<Client> clients = new ArrayList<Client>();
+	public List<Client> activeClientList = new ArrayList<Client>();
 
 	public GroupCommuncation() {			
 		try {
-			runGroupCommuncation = true;				
+			runGroupCommuncation = true;
+			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, UniqueIdentifier.getUniqueIdentifier());				
 			datagramSocket = new MulticastSocket(datagramSocketPort);	
 			ReceiveThread rt = new ReceiveThread();
-			
 			rt.start();
+			sendJoinMessage(activeClient);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -69,45 +72,32 @@ public class GroupCommuncation {
 				try {
 					datagramSocket.receive(datagramPacket);										
 					byte[] packetData = datagramPacket.getData();					
-					Message receivedMessage = messageSerializer.deserializeMessage(packetData);					
-					handleDatagramPacket(datagramPacket);
+					Message receivedMessage = messageSerializer.deserializeMessage(packetData);				
 					handleMessage(receivedMessage);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		
-		private void handleDatagramPacket (DatagramPacket datagramPacket) {
-			String string = new String(datagramPacket.getData()); 
-			boolean isConnected = true;
-			if (!(string.isEmpty())){
-				int clientId = UniqueIdentifier.getUniqueIdentifier();
-				String clientName = "ex:name";
-				InetAddress ipAddress = datagramPacket.getAddress();
-				int portNumber = datagramPacket.getPort();
-				if(isConnected){
-					clients.add(new Client(clientName, ipAddress, portNumber, clientId, isConnected));
-					System.out.println(clients.get(0).getID());
-				}
-			}else{
-				isConnected = false;
-				System.out.println(string);
-			}
-		}
 
 		private void handleMessage (Message message) {
 			
-			if(message instanceof ChatMessage) {				
-				ChatMessage chatMessage = (ChatMessage) message;				
+			if(message instanceof ChatMessage) {
+				ChatMessage chatMessage = (ChatMessage) message;
 				if(chatMessageListener != null){
 					chatMessageListener.onIncomingChatMessage(chatMessage);
 				}
-			} else {				
+			} else if (message instanceof JoinMessage) {
+				JoinMessage joinMessage = (JoinMessage) message;
+				if (joinMessageListener != null) {
+					joinMessageListener.onIncomingJoinMessage(joinMessage); //Should show for the user.
+				}
+			} 
+			else {
 				System.out.println("Unknown message type");
-			}			
-		}		
-	}	
+			}
+		}
+	}
 	
 	public void sendChatMessage(String chat) {
 		try {
@@ -118,11 +108,29 @@ public class GroupCommuncation {
 			datagramSocket.send(sendPacket);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
+	}
+
+	public void sendJoinMessage(Client client) {
+		try {
+			JoinMessage joinMessage = new JoinMessage(client);
+			System.out.println(joinMessage.joined);
+			activeClientList.add(client);
+			byte[] sendData = messageSerializer.serializeMessage(joinMessage);
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
+					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
+			datagramSocket.send(sendPacket);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setJoinMessageListener(JoinMessageListener listener) {
+		this.joinMessageListener = listener;
 	}
 
 	public void setChatMessageListener(ChatMessageListener listener) {
-		this.chatMessageListener = listener;		
+		this.chatMessageListener = listener;
 	}
 	
 }

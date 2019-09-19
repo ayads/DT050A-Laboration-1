@@ -1,5 +1,4 @@
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JButton;
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
@@ -12,26 +11,26 @@ import java.awt.EventQueue;
 
 import se.miun.distsys.GroupCommuncation;
 import se.miun.distsys.listeners.ChatMessageListener;
+import se.miun.distsys.listeners.JoinMessageListener;
 import se.miun.distsys.messages.ChatMessage;
-import se.miun.distsys.clients.Client;
+import se.miun.distsys.messages.JoinMessage;
 
 
 //Skeleton code for Distributed systems 9hp, DT050A
 
-public class WindowProgram implements ChatMessageListener, ActionListener {
+public class WindowProgram implements ChatMessageListener, JoinMessageListener, ActionListener {
 	JFrame frame;
 	JTextPane txtpnChat = new JTextPane();
 	JTextPane txtpnMessage = new JTextPane();
-	JTextPane clientId = new JTextPane();
-	JTextPane clientStatus = new JTextPane();
-	JTextPane connectionStatus = new JTextPane();
+	JTextPane txtpnJoin = new JTextPane();
 	
 	GroupCommuncation gc = null;
-	String[] activeClient = {"client 1", "client 2", "client 3"}; //an example of client names you will have in the list
+	//String[] activeClient = {"client 1", "client 2", "client 3"};
 	
 	public WindowProgram() {
 		initializeFrame();
-		gc = new GroupCommuncation();		
+		gc = new GroupCommuncation();
+		gc.setJoinMessageListener(this);
 		gc.setChatMessageListener(this);
 		System.out.println("Group Communcation Started");
 	}
@@ -47,23 +46,18 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 		*	have many users so will 
 		*	you be able to scroll
 		*/
-		JList<String> activeClientList = new JList<String>(activeClient);
-		JScrollPane activeClientListScrollPane = new JScrollPane(activeClientList);
-		frame.getContentPane().add(activeClientListScrollPane);
+		
+		/**
+		 * JList<String> activeClientList = new JList<String>(activeClient);
+		 * JScrollPane activeClientListScrollPane = new JScrollPane(activeClientList);
+		 * frame.getContentPane().add(activeClientListScrollPane);
+		 * */
 		
 		JScrollPane scrollPane = new JScrollPane();
 		frame.getContentPane().add(scrollPane);
 		scrollPane.setViewportView(txtpnChat);
 		txtpnChat.setEditable(false);	
 		txtpnChat.setText("--== Group Chat ==--");
-		
-		JScrollPane scrollPaneClients = new JScrollPane();
-		frame.getContentPane().add(scrollPaneClients);
-		scrollPaneClients.setViewportView(connectionStatus);
-		connectionStatus.setEditable(false);	
-		connectionStatus.setText("Connection Status");
-		frame.getContentPane().add(connectionStatus);
-
 		
 		txtpnMessage.setText("Message: ");
 		frame.getContentPane().add(txtpnMessage);
@@ -76,7 +70,11 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 	        public void windowClosing(WindowEvent winEvt) {
 	            gc.shutdown();
 	        }
-	    });
+		});
+		JScrollPane scrollJoinPane = new JScrollPane();
+		frame.getContentPane().add(scrollJoinPane);
+		scrollJoinPane.setViewportView(txtpnJoin);
+		txtpnJoin.setEditable(false);
 	}
 
 	@Override
@@ -89,13 +87,12 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 	@Override
 	public void onIncomingChatMessage(ChatMessage chatMessage) {
 		txtpnChat.setText(chatMessage.chat + "\n" + txtpnChat.getText());
-		for(int i = 0; (i < gc.clients.size()) && (gc.clients.get(i).status == true); i++){
-			int clientId = gc.clients.get(i).getID();
-			String clientIdAsString = String.valueOf(clientId);
-			connectionStatus.setText(clientIdAsString + " joined" + "\n" + connectionStatus.getText());
-		}
 	}
 
+	@Override
+	public void onIncomingJoinMessage(JoinMessage joinMessage) {
+		txtpnJoin.setText(joinMessage.joined);
+	}
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
