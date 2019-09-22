@@ -52,7 +52,7 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 		 * JScrollPane activeClientListScrollPane = new JScrollPane(activeClientList);
 		 * frame.getContentPane().add(activeClientListScrollPane);
 		 * */
-		
+
 		JScrollPane scrollPane = new JScrollPane();
 		frame.getContentPane().add(scrollPane);
 		scrollPane.setViewportView(txtpnChat);
