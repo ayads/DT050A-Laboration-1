@@ -7,6 +7,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.EventQueue;
 
 import se.miun.distsys.GroupCommuncation;
@@ -23,10 +25,10 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	JTextPane txtpnChat = new JTextPane();
 	JTextPane txtpnMessage = new JTextPane();
 	JTextPane txtpnJoin = new JTextPane();
-	
+
 	GroupCommuncation gc = null;
-	//String[] activeClient = {"client 1", "client 2", "client 3"};
-	
+	public List<String> clientList = new ArrayList<String>();
+
 	public WindowProgram() {
 		initializeFrame();
 		gc = new GroupCommuncation();
@@ -40,18 +42,6 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout(4, 1, 0, 0));
-		/*
-		*	Show a list of clients 
-		*	in the first row, if you 
-		*	have many users so will 
-		*	you be able to scroll
-		*/
-		
-		/**
-		 * JList<String> activeClientList = new JList<String>(activeClient);
-		 * JScrollPane activeClientListScrollPane = new JScrollPane(activeClientList);
-		 * frame.getContentPane().add(activeClientListScrollPane);
-		 * */
 
 		JScrollPane scrollPane = new JScrollPane();
 		frame.getContentPane().add(scrollPane);
@@ -71,10 +61,11 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	            gc.shutdown();
 	        }
 		});
-		JScrollPane scrollJoinPane = new JScrollPane();
-		frame.getContentPane().add(scrollJoinPane);
-		scrollJoinPane.setViewportView(txtpnJoin);
-		txtpnJoin.setEditable(false);
+
+		JScrollPane scrollPaneJoin = new JScrollPane();
+		frame.getContentPane().add(scrollPaneJoin);
+		scrollPaneJoin.setViewportView(txtpnJoin);
+		txtpnJoin.setEditable(false);	
 	}
 
 	@Override
@@ -91,7 +82,13 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 
 	@Override
 	public void onIncomingJoinMessage(JoinMessage joinMessage) {
-		txtpnJoin.setText(joinMessage.joined);
+		try {
+			clientList.add(joinMessage.joined);
+			txtpnJoin.setText(joinMessage.joined + "\n" + txtpnJoin.getText());
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
 	}
 
 	public static void main(String[] args) {

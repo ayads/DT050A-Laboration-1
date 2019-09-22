@@ -41,15 +41,13 @@ public class GroupCommuncation {
 
 	//Active clients
 	public List<Client> activeClientList = new ArrayList<Client>();
-
-	public GroupCommuncation() {			
+	public GroupCommuncation() {
 		try {
 			runGroupCommuncation = true;
-			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, UniqueIdentifier.getUniqueIdentifier());				
 			datagramSocket = new MulticastSocket(datagramSocketPort);	
 			ReceiveThread rt = new ReceiveThread();
-			sendJoinMessage(activeClient);
 			rt.start();
+			sendJoinMessage();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -66,7 +64,6 @@ public class GroupCommuncation {
 		public void run() {
 			byte[] buffer = new byte[65536];		
 			DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
-			
 			while(runGroupCommuncation) {
 				try {
 					datagramSocket.receive(datagramPacket);										
@@ -110,10 +107,12 @@ public class GroupCommuncation {
 		}
 	}
 
-	public void sendJoinMessage(Client client) {
+	public void sendJoinMessage() {
 		try {
-			JoinMessage joinMessage = new JoinMessage(client);
-			activeClientList.add(client);
+			Thread.sleep(500);
+			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, UniqueIdentifier.getUniqueIdentifier());
+			activeClientList.add(activeClient);
+			JoinMessage joinMessage = new JoinMessage(activeClient);
 			byte[] sendData = messageSerializer.serializeMessage(joinMessage);
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
 					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
