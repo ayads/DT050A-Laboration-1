@@ -10,8 +10,10 @@ import java.net.MulticastSocket;
 
 import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.listeners.JoinMessageListener;
+import se.miun.distsys.listeners.LeaveMessageListener;
 import se.miun.distsys.messages.ChatMessage;
 import se.miun.distsys.messages.JoinMessage;
+import se.miun.distsys.messages.LeaveMessage;
 import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
 import se.miun.distsys.clients.Client;
@@ -38,9 +40,11 @@ public class GroupCommuncation {
 	//Listeners
 	ChatMessageListener chatMessageListener = null;
 	JoinMessageListener joinMessageListener = null;
+	LeaveMessageListener leaveMessageListener = null; 
 
 	//Active clients
 	public List<Client> activeClientList = new ArrayList<Client>();
+
 	public GroupCommuncation() {
 		try {
 			runGroupCommuncation = true;
@@ -54,10 +58,10 @@ public class GroupCommuncation {
 	}
 	
 	public void shutdown() {
-		runGroupCommuncation = false;		
+		sendLeaveMessage(activeClientList.get(0));
+		runGroupCommuncation = false;
 	}
 	
-
 	class ReceiveThread extends Thread{
 		
 		@Override
@@ -88,6 +92,11 @@ public class GroupCommuncation {
 				if (joinMessageListener != null) {
 					joinMessageListener.onIncomingJoinMessage(joinMessage);
 				}
+			} else if (message instanceof LeaveMessage) {
+				LeaveMessage leaveMessage = (LeaveMessage) message;
+				if (leaveMessageListener != null) {
+					leaveMessageListener.onIncomingLeaveMessage(leaveMessage);
+				}
 			} 
 			else {
 				System.out.println("Unknown message type");
@@ -109,8 +118,9 @@ public class GroupCommuncation {
 
 	public void sendJoinMessage() {
 		try {
-			Thread.sleep(500);
-			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, UniqueIdentifier.getUniqueIdentifier());
+			Thread.sleep(250);
+			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, 
+					UniqueIdentifier.getUniqueIdentifier());
 			activeClientList.add(activeClient);
 			JoinMessage joinMessage = new JoinMessage(activeClient);
 			byte[] sendData = messageSerializer.serializeMessage(joinMessage);
@@ -122,12 +132,29 @@ public class GroupCommuncation {
 		}
 	}
 
-	public void setJoinMessageListener(JoinMessageListener listener) {
-		this.joinMessageListener = listener;
+	public void sendLeaveMessage(Client inactiveClient) {
+		try {
+			//TODO: Implement sendLeaveMessage!
+			activeClientList.remove(activeClientList.indexOf(inactiveClient));
+			LeaveMessage leaveMessage = new LeaveMessage(inactiveClient);
+			byte[] sendData = messageSerializer.serializeMessage(leaveMessage);
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
+					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
+			datagramSocket.send(sendPacket);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setChatMessageListener(ChatMessageListener listener) {
 		this.chatMessageListener = listener;
 	}
-	
+
+	public void setJoinMessageListener(JoinMessageListener listener) {
+		this.joinMessageListener = listener;
+	}
+
+	public void setLeaveMessageListener(LeaveMessageListener listener) {
+		this.leaveMessageListener = listener;
+	}
 }

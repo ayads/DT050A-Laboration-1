@@ -14,13 +14,15 @@ import java.awt.EventQueue;
 import se.miun.distsys.GroupCommuncation;
 import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.listeners.JoinMessageListener;
+import se.miun.distsys.listeners.LeaveMessageListener;
 import se.miun.distsys.messages.ChatMessage;
 import se.miun.distsys.messages.JoinMessage;
+import se.miun.distsys.messages.LeaveMessage;
 
 
 //Skeleton code for Distributed systems 9hp, DT050A
 
-public class WindowProgram implements ChatMessageListener, JoinMessageListener, ActionListener {
+public class WindowProgram implements ChatMessageListener, JoinMessageListener, LeaveMessageListener, ActionListener {
 	JFrame frame;
 	JTextPane txtpnChat = new JTextPane();
 	JTextPane txtpnMessage = new JTextPane();
@@ -87,7 +89,15 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 			txtpnJoin.setText(joinMessage.joined + "\n" + txtpnJoin.getText());
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
 
+	@Override
+	public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
+		try {
+			//TODO: Implement LeaveMessage!
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
