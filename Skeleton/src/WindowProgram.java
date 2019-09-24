@@ -15,14 +15,16 @@ import se.miun.distsys.GroupCommuncation;
 import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.listeners.JoinMessageListener;
 import se.miun.distsys.listeners.LeaveMessageListener;
+import se.miun.distsys.listeners.ResponseJoinMessageListener;
 import se.miun.distsys.messages.ChatMessage;
 import se.miun.distsys.messages.JoinMessage;
 import se.miun.distsys.messages.LeaveMessage;
+import se.miun.distsys.messages.ResponseJoinMessage;
 
 
 //Skeleton code for Distributed systems 9hp, DT050A
 
-public class WindowProgram implements ChatMessageListener, JoinMessageListener, LeaveMessageListener, ActionListener {
+public class WindowProgram implements ChatMessageListener, JoinMessageListener, LeaveMessageListener, ResponseJoinMessageListener, ActionListener {
 	JFrame frame;
 	JTextPane txtpnChat = new JTextPane();
 	JTextPane txtpnMessage = new JTextPane();
@@ -63,7 +65,7 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	            gc.shutdown();
 	        }
 		});
-
+		txtpnJoin.setText("--== Client Status ==--");
 		JScrollPane scrollPaneJoin = new JScrollPane();
 		frame.getContentPane().add(scrollPaneJoin);
 		scrollPaneJoin.setViewportView(txtpnJoin);
@@ -95,7 +97,16 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	@Override
 	public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
 		try {
-			//TODO: Implement LeaveMessage!
+			//TODO: Implement onIncomingLeaveMessage!
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onIncomingResponseJoinMessage(ResponseJoinMessage responseJoinMessage) {
+		try {
+			//TODO: Implement onIncomingResponseJoinMessage!
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

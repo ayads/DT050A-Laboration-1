@@ -11,11 +11,13 @@ import java.net.MulticastSocket;
 import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.listeners.JoinMessageListener;
 import se.miun.distsys.listeners.LeaveMessageListener;
+import se.miun.distsys.listeners.ResponseJoinMessageListener;
 import se.miun.distsys.messages.ChatMessage;
 import se.miun.distsys.messages.JoinMessage;
 import se.miun.distsys.messages.LeaveMessage;
 import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
+import se.miun.distsys.messages.ResponseJoinMessage;
 import se.miun.distsys.clients.Client;
 import se.miun.distsys.clients.UniqueIdentifier;
 
@@ -45,7 +47,8 @@ public class GroupCommuncation {
 	//Listeners
 	ChatMessageListener chatMessageListener = null;
 	JoinMessageListener joinMessageListener = null;
-	LeaveMessageListener leaveMessageListener = null; 
+	LeaveMessageListener leaveMessageListener = null;
+	ResponseJoinMessageListener responseJoinMessageListener = null; 
 
 	//Active clients
 	public List<Client> activeClientList = new ArrayList<Client>();
@@ -102,6 +105,11 @@ public class GroupCommuncation {
 				if (leaveMessageListener != null) {
 					leaveMessageListener.onIncomingLeaveMessage(leaveMessage);
 				}
+			} else if (message instanceof ResponseJoinMessage) {
+				ResponseJoinMessage responseJoinMessage = (ResponseJoinMessage) message;
+				if (responseJoinMessageListener != null) {
+					responseJoinMessageListener.onIncomingResponseJoinMessage(responseJoinMessage);
+				}
 			} 
 			else {
 				System.out.println("Unknown message type");
@@ -151,6 +159,14 @@ public class GroupCommuncation {
 		}
 	}
 
+	public void sendResponseJoinMessage(Client inactiveClient) {
+		try {
+			//TODO: Implement function!
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void setChatMessageListener(ChatMessageListener listener) {
 		this.chatMessageListener = listener;
 	}
@@ -161,5 +177,9 @@ public class GroupCommuncation {
 
 	public void setLeaveMessageListener(LeaveMessageListener listener) {
 		this.leaveMessageListener = listener;
+	}
+
+	public void setResponseJoinMessageListener(ResponseJoinMessageListener listener) {
+		this.responseJoinMessageListener = listener;
 	}
 }
