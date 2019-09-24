@@ -24,6 +24,11 @@ import se.miun.distsys.clients.UniqueIdentifier;
  * TODO: 
  * Leave message(class)
  * Join message (class)
+ * joinMessageListener(containes sendResponsJoinMessage ) 
+ * respondJoinMessage
+ * ResponseJoinMessage (class)
+ * ResponseJoinMessagelistener
+ * Obs!: we need to check whether the Client ID already exists in the activeClientList 
  * sendJoinMessage
  * sendLeaveMessage
  * Remove datagramHandler
