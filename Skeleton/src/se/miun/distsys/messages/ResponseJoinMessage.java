@@ -1,14 +1,14 @@
 package se.miun.distsys.messages;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import se.miun.distsys.clients.Client;
 
 public class ResponseJoinMessage extends Message {
+    public int clientID;
 
-    public String responseJoinMessage = "";
-    public int clientID = -1;
-
-	public ResponseJoinMessage(Client client) {
-        this.responseJoinMessage = "User ID " + client.getID() + " is now online!";
-        this.clientID = client.getID();
+	public ResponseJoinMessage(Client myClient ) {
+        clientID = myClient.getID();
 	}
 }

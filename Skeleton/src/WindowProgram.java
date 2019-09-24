@@ -45,7 +45,7 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new GridLayout(4, 1, 0, 0));
+		frame.getContentPane().setLayout(new GridLayout(0, 1, 0, 0));
 
 		JScrollPane scrollPane = new JScrollPane();
 		frame.getContentPane().add(scrollPane);
@@ -97,7 +97,7 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	@Override
 	public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
 		try {
-			//TODO: Implement onIncomingLeaveMessage!
+			//TODO: Implement onIncomingLeaveMessage!			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -107,6 +107,7 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	public void onIncomingResponseJoinMessage(ResponseJoinMessage responseJoinMessage) {
 		try {
 			//TODO: Implement onIncomingResponseJoinMessage!
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

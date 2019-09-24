@@ -48,7 +48,14 @@ public class GroupCommuncation {
 	ChatMessageListener chatMessageListener = null;
 	JoinMessageListener joinMessageListener = null;
 	LeaveMessageListener leaveMessageListener = null;
-	ResponseJoinMessageListener responseJoinMessageListener = null; 
+	ResponseJoinMessageListener responseJoinMessageListener = new ResponseJoinMessageListener(){
+	
+		@Override
+		public void onIncomingResponseJoinMessage(ResponseJoinMessage responseJoinMessage) {
+			int temp = responseJoinMessage.clientID;
+			System.out.println(temp);
+		}
+	}; 
 
 	//Active clients
 	public List<Client> activeClientList = new ArrayList<Client>();
@@ -59,7 +66,10 @@ public class GroupCommuncation {
 			datagramSocket = new MulticastSocket(datagramSocketPort);	
 			ReceiveThread rt = new ReceiveThread();
 			rt.start();
-			sendJoinMessage();
+			Thread.sleep(250);
+			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, 
+					UniqueIdentifier.getUniqueIdentifier());
+			sendJoinMessage(activeClient);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -99,6 +109,7 @@ public class GroupCommuncation {
 				JoinMessage joinMessage = (JoinMessage) message;
 				if (joinMessageListener != null) {
 					joinMessageListener.onIncomingJoinMessage(joinMessage);
+
 				}
 			} else if (message instanceof LeaveMessage) {
 				LeaveMessage leaveMessage = (LeaveMessage) message;
@@ -129,13 +140,10 @@ public class GroupCommuncation {
 		}
 	}
 
-	public void sendJoinMessage() {
+	public JoinMessage sendJoinMessage(Client activeClient) {
+		JoinMessage joinMessage = new JoinMessage(activeClient);
 		try {
-			Thread.sleep(250);
-			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, 
-					UniqueIdentifier.getUniqueIdentifier());
 			activeClientList.add(activeClient);
-			JoinMessage joinMessage = new JoinMessage(activeClient);
 			byte[] sendData = messageSerializer.serializeMessage(joinMessage);
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
 					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
@@ -143,6 +151,7 @@ public class GroupCommuncation {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return joinMessage;
 	}
 
 	public void sendLeaveMessage(Client inactiveClient) {
@@ -159,12 +168,15 @@ public class GroupCommuncation {
 		}
 	}
 
-	public void sendResponseJoinMessage(Client inactiveClient) {
+	public List<Client> sendResponseJoinMessage(JoinMessage joinMessage) {
+		joinMessage = sendJoinMessage(joinMessage.client);
 		try {
-			//TODO: Implement function!
+			activeClientList.add(joinMessage.client);			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return activeClientList;
 	}
 
 	public void setChatMessageListener(ChatMessageListener listener) {
