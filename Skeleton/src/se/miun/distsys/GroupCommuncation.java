@@ -4,6 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Vector;
 
 import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.listeners.JoinMessageListener;
@@ -32,6 +33,8 @@ public class GroupCommuncation {
 	ResponseJoinMessageListener responseJoinMessageListener = null;
 
 	public Client activeClient = createClient();
+
+	public Vector<Integer> activeClientList = new Vector();
 
 	public GroupCommuncation() {
 		try {
@@ -110,9 +113,9 @@ public class GroupCommuncation {
 		return null;
 	}
 	
-	public void sendChatMessage(String chat) {
+	public void sendChatMessage(Client client, String chat) {
 		try {
-			ChatMessage chatMessage = new ChatMessage(chat);
+			ChatMessage chatMessage = new ChatMessage(client, chat);
 			byte[] sendData = messageSerializer.serializeMessage(chatMessage);
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
 					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
