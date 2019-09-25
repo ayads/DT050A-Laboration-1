@@ -1,8 +1,5 @@
 package se.miun.distsys;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -21,25 +18,9 @@ import se.miun.distsys.messages.ResponseJoinMessage;
 import se.miun.distsys.clients.Client;
 import se.miun.distsys.clients.UniqueIdentifier;
 
-
-/**
- * TODO: 
- * Leave message(class)
- * Join message (class)
- * joinMessageListener(containes sendResponsJoinMessage ) 
- * respondJoinMessage
- * ResponseJoinMessage (class)
- * ResponseJoinMessagelistener
- * Obs!: we need to check whether the Client ID already exists in the activeClientList 
- * sendJoinMessage
- * sendLeaveMessage
- * Remove datagramHandler
- */
-
-
 public class GroupCommuncation {
 	
-	private int datagramSocketPort = 2019; // port number for the communication		
+	private int datagramSocketPort = 2019;	
 	DatagramSocket datagramSocket = null;	
 	boolean runGroupCommuncation = true;	
 	MessageSerializer messageSerializer = new MessageSerializer();
@@ -98,6 +79,7 @@ public class GroupCommuncation {
 				JoinMessage joinMessage = (JoinMessage) message;
 				if (joinMessageListener != null) {
 					joinMessageListener.onIncomingJoinMessage(joinMessage);
+
 				}
 			} else if (message instanceof LeaveMessage) {
 				LeaveMessage leaveMessage = (LeaveMessage) message;

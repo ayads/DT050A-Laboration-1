@@ -8,8 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.EventQueue;
-import java.awt.Color;
-import java.awt.Font;
 
 import se.miun.distsys.GroupCommuncation;
 import se.miun.distsys.listeners.ChatMessageListener;
@@ -20,9 +18,6 @@ import se.miun.distsys.messages.ChatMessage;
 import se.miun.distsys.messages.JoinMessage;
 import se.miun.distsys.messages.LeaveMessage;
 import se.miun.distsys.messages.ResponseJoinMessage;
-
-
-//Skeleton code for Distributed systems 9hp, DT050A
 
 public class WindowProgram implements ChatMessageListener, JoinMessageListener, LeaveMessageListener, ResponseJoinMessageListener, ActionListener {
 	JFrame frame;
@@ -46,7 +41,7 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new GridLayout(4, 1, 0, 0));
+		frame.getContentPane().setLayout(new GridLayout(0, 1, 0, 0));
 
 		JScrollPane scrollPane = new JScrollPane();
 		frame.getContentPane().add(scrollPane);
@@ -70,7 +65,6 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 		frame.getContentPane().add(scrollPaneJoin);
 		scrollPaneJoin.setViewportView(txtpnStatus);
 		txtpnStatus.setEditable(false);
-		txtpnStatus.setForeground(Color.gray);
 	}
 
 	@Override
@@ -82,7 +76,7 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 
 	@Override
 	public void onIncomingChatMessage(ChatMessage chatMessage) {
-		txtpnChat.setText(chatMessage.chat + "\n" + txtpnChat.getText());
+		txtpnChat.setText( chatMessage.chat + "\n" + txtpnChat.getText());
 	}
 
 	@Override
