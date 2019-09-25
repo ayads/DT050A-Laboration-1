@@ -25,7 +25,7 @@ public class GroupCommuncation {
 	boolean runGroupCommuncation = true;	
 	MessageSerializer messageSerializer = new MessageSerializer();
 	
-	//Listeners
+	//Message Listeners
 	ChatMessageListener chatMessageListener = null;
 	JoinMessageListener joinMessageListener = null;
 	LeaveMessageListener leaveMessageListener = null;
@@ -84,14 +84,12 @@ public class GroupCommuncation {
 			} else if (message instanceof LeaveMessage) {
 				LeaveMessage leaveMessage = (LeaveMessage) message;
 				if (leaveMessageListener != null) {
-					System.out.println("leaveMessage.clientID: " + leaveMessage.clientID);
 					leaveMessageListener.onIncomingLeaveMessage(leaveMessage);
 				}
 			} else if (message instanceof ResponseJoinMessage) {
 				ResponseJoinMessage responseJoinMessage = (ResponseJoinMessage) message;
 				if (responseJoinMessageListener != null) {
 					responseJoinMessageListener.onIncomingResponseJoinMessage(responseJoinMessage);
-					//System.out.println("111 responseJoinMessage.clientID: " + responseJoinMessage.clientID);
 				}
 			} 
 			else {
