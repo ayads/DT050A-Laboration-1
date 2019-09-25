@@ -48,10 +48,9 @@ public class GroupCommuncation {
 	ChatMessageListener chatMessageListener = null;
 	JoinMessageListener joinMessageListener = null;
 	LeaveMessageListener leaveMessageListener = null;
-	ResponseJoinMessageListener responseJoinMessageListener = null; 
+	ResponseJoinMessageListener responseJoinMessageListener = null;
 
-	//Active clients
-	public List<Client> activeClientList = new ArrayList<Client>();
+	public Client activeClient = createClient();
 
 	public GroupCommuncation() {
 		try {
@@ -59,14 +58,14 @@ public class GroupCommuncation {
 			datagramSocket = new MulticastSocket(datagramSocketPort);	
 			ReceiveThread rt = new ReceiveThread();
 			rt.start();
-			sendJoinMessage();
+			sendJoinMessage(activeClient);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public void shutdown() {
-		sendLeaveMessage(activeClientList.get(0));
+		sendLeaveMessage();
 		runGroupCommuncation = false;
 	}
 	
@@ -103,18 +102,32 @@ public class GroupCommuncation {
 			} else if (message instanceof LeaveMessage) {
 				LeaveMessage leaveMessage = (LeaveMessage) message;
 				if (leaveMessageListener != null) {
+					System.out.println("leaveMessage.clientID: " + leaveMessage.clientID);
 					leaveMessageListener.onIncomingLeaveMessage(leaveMessage);
 				}
 			} else if (message instanceof ResponseJoinMessage) {
 				ResponseJoinMessage responseJoinMessage = (ResponseJoinMessage) message;
 				if (responseJoinMessageListener != null) {
 					responseJoinMessageListener.onIncomingResponseJoinMessage(responseJoinMessage);
+					//System.out.println("111 responseJoinMessage.clientID: " + responseJoinMessage.clientID);
 				}
 			} 
 			else {
 				System.out.println("Unknown message type");
 			}
 		}
+	}
+
+	public Client createClient(){
+		try {
+			Thread.sleep(250);
+			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, 
+					UniqueIdentifier.getUniqueIdentifier());
+			return activeClient;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public void sendChatMessage(String chat) {
@@ -129,13 +142,9 @@ public class GroupCommuncation {
 		}
 	}
 
-	public void sendJoinMessage() {
+	public void sendJoinMessage(Client client) {
 		try {
-			Thread.sleep(250);
-			Client activeClient = new Client(InetAddress.getByName("255.255.255.255"), datagramSocketPort, 
-					UniqueIdentifier.getUniqueIdentifier());
-			activeClientList.add(activeClient);
-			JoinMessage joinMessage = new JoinMessage(activeClient);
+			JoinMessage joinMessage = new JoinMessage(client);
 			byte[] sendData = messageSerializer.serializeMessage(joinMessage);
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
 					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
@@ -145,12 +154,10 @@ public class GroupCommuncation {
 		}
 	}
 
-	public void sendLeaveMessage(Client inactiveClient) {
+	public void sendResponseJoinMessage() {
 		try {
-			//TODO: Implement sendLeaveMessage!
-			activeClientList.remove(activeClientList.indexOf(inactiveClient));
-			LeaveMessage leaveMessage = new LeaveMessage(inactiveClient);
-			byte[] sendData = messageSerializer.serializeMessage(leaveMessage);
+			ResponseJoinMessage responseJoinMessage = new ResponseJoinMessage(activeClient);
+			byte[] sendData = messageSerializer.serializeMessage(responseJoinMessage);
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
 					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
 			datagramSocket.send(sendPacket);
@@ -159,9 +166,13 @@ public class GroupCommuncation {
 		}
 	}
 
-	public void sendResponseJoinMessage(Client inactiveClient) {
+	public void sendLeaveMessage() {
 		try {
-			//TODO: Implement function!
+			LeaveMessage leaveMessage = new LeaveMessage(activeClient);
+			byte[] sendData = messageSerializer.serializeMessage(leaveMessage);
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
+					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
+			datagramSocket.send(sendPacket);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -175,11 +186,11 @@ public class GroupCommuncation {
 		this.joinMessageListener = listener;
 	}
 
-	public void setLeaveMessageListener(LeaveMessageListener listener) {
-		this.leaveMessageListener = listener;
-	}
-
 	public void setResponseJoinMessageListener(ResponseJoinMessageListener listener) {
 		this.responseJoinMessageListener = listener;
+	}
+
+	public void setLeaveMessageListener(LeaveMessageListener listener) {
+		this.leaveMessageListener = listener;
 	}
 }

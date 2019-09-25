@@ -7,9 +7,9 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
 import java.awt.EventQueue;
+import java.awt.Color;
+import java.awt.Font;
 
 import se.miun.distsys.GroupCommuncation;
 import se.miun.distsys.listeners.ChatMessageListener;
@@ -28,16 +28,17 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	JFrame frame;
 	JTextPane txtpnChat = new JTextPane();
 	JTextPane txtpnMessage = new JTextPane();
-	JTextPane txtpnJoin = new JTextPane();
+	JTextPane txtpnStatus = new JTextPane();
 
 	GroupCommuncation gc = null;
-	public List<String> clientList = new ArrayList<String>();
 
 	public WindowProgram() {
 		initializeFrame();
 		gc = new GroupCommuncation();
-		gc.setJoinMessageListener(this);
 		gc.setChatMessageListener(this);
+		gc.setJoinMessageListener(this);
+		gc.setResponseJoinMessageListener(this);
+		gc.setLeaveMessageListener(this);
 		System.out.println("Group Communcation Started");
 	}
 
@@ -61,15 +62,15 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 		btnSendChatMessage.setActionCommand("send");
 		frame.getContentPane().add(btnSendChatMessage);
 		frame.addWindowListener(new java.awt.event.WindowAdapter() {
-	        public void windowClosing(WindowEvent winEvt) {
+			public void windowClosing(WindowEvent winEvt) {
 	            gc.shutdown();
 	        }
 		});
-		txtpnJoin.setText("--== Client Status ==--");
 		JScrollPane scrollPaneJoin = new JScrollPane();
 		frame.getContentPane().add(scrollPaneJoin);
-		scrollPaneJoin.setViewportView(txtpnJoin);
-		txtpnJoin.setEditable(false);	
+		scrollPaneJoin.setViewportView(txtpnStatus);
+		txtpnStatus.setEditable(false);
+		txtpnStatus.setForeground(Color.gray);
 	}
 
 	@Override
@@ -87,17 +88,10 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	@Override
 	public void onIncomingJoinMessage(JoinMessage joinMessage) {
 		try {
-			clientList.add(joinMessage.joined);
-			txtpnJoin.setText(joinMessage.joined + "\n" + txtpnJoin.getText());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
-		try {
-			//TODO: Implement onIncomingLeaveMessage!
+			txtpnStatus.setText(joinMessage.clientID + " has joined the conversation." + "\n" + txtpnStatus.getText());
+			if(joinMessage.clientID != gc.activeClient.getID()){
+				gc.sendResponseJoinMessage();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -106,7 +100,18 @@ public class WindowProgram implements ChatMessageListener, JoinMessageListener, 
 	@Override
 	public void onIncomingResponseJoinMessage(ResponseJoinMessage responseJoinMessage) {
 		try {
-			//TODO: Implement onIncomingResponseJoinMessage!
+			if(responseJoinMessage.clientID != gc.activeClient.getID() ){
+				txtpnStatus.setText("Response: " + responseJoinMessage.clientID + "\n" + txtpnStatus.getText() );
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
+		try {
+			txtpnStatus.setText(leaveMessage.clientID + " has left the conversation." + "\n" + txtpnStatus.getText());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
