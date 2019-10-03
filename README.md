@@ -19,16 +19,12 @@ The main goal of this laboration is to learn how to program UDP broadcast socket
 This section demonstrates the obtained results when we run the program.
 
 ### Users Join
+The below figure is a snapshot of the program when a new client joins the `Multicast network`.
 ![Users joined](/Images/twoUsers.PNG)
 
 ### Users Leave
+The snapshot below demonstrates the state of the program when a client leaves the `Multicast network`.
 ![User left](/Images/userLeft.PNG)
-
-## Credit
-- Ayad Shaif (aysh1500)
-- Patrik Högblom(pahg1600)
-
-## 
 
 ## File Structur of Group Communication Program
 ```
@@ -56,12 +52,26 @@ This section demonstrates the obtained results when we run the program.
 
 ## Components of Group Communication Program
 
+A `class` for clients is created to maintain the clients properties. The class contain three primary variables. `ipAddress` and `port` are used to specify the `Multicast network's` IP address and respectivly the Port number, `ID` is a randomly generated unique identifier for the each client.
+
+```java
+public Client(InetAddress ipAddress, int port, int ID) {
+    this.ipAddress = ipAddress;
+    this.port = port;
+    this.ID = ID;
+}
+```
+
+The following functions are responsible for prepareing the packages and sending them into the `Multicast network`.
+In order to successfully prepare the `datagram package`. The program creates the message respective type, `serializes` it and then sends it to the appointed destination in the `Multicast network`.
+
 ```java
 public void sendChatMessage(Client client, String chat);
 public void sendJoinMessage(Client client);
 public void sendResponseJoinMessage();
 public void sendLeaveMessage();
 ```
+Similarly, the received messages must be `deserialized` first in order to handle the messages. The `Multicast network` need then to identify the message type in order to call the apropriate method for handling the message. The `listeners` above handle messages respectivly and communicates the messages to the rest of the `Multicast network`.
 
 ```java
 //Message Listeners
@@ -70,11 +80,22 @@ JoinMessageListener joinMessageListener = null;
 LeaveMessageListener leaveMessageListener = null;
 ResponseJoinMessageListener responseJoinMessageListener = null;
 ```
+The following method is an example of a received message operator. The method is responsible for showing the correct values in the program. Values are stored in a `vector` which then is used to avoid data replication with other messages.
 
 ```java
-//Setters for handling each listener
-public void setChatMessageListener(ChatMessageListener listener);
-public void setJoinMessageListener(JoinMessageListener listener);
-public void setResponseJoinMessageListener(ResponseJoinMessageListener listener);
-public void setLeaveMessageListener(LeaveMessageListener listener);
+@Override
+public void onIncomingJoinMessage(JoinMessage joinMessage) {
+	try {
+		gc.activeClientList.add(joinMessage.clientID);
+		txtpnStatus.setText(joinMessage.clientID + " joined the conversation." + "\n" + txtpnStatus.getText());
+		if(joinMessage.clientID != gc.activeClient.getID()){
+			gc.sendResponseJoinMessage();
+		}
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+}
 ```
+## Credit
+- Ayad Shaif (aysh1500)
+- Patrik Högblom(pahg1600)
